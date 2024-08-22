@@ -1,7 +1,9 @@
 package br.com.bilangieri.security.entities;
 
 
+import br.com.bilangieri.security.controller.dto.LoginRequest;
 import jakarta.persistence.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Set;
 
@@ -17,8 +19,8 @@ public class User {
     private UUID userId;
 
 
-    @Column(unique = true, nullable = false, name = "user_name")
-    private String userName;
+    @Column(unique = true)
+    private String username;
 
     private String password;
 
@@ -35,11 +37,11 @@ public class User {
     }
 
     public String getUserName() {
-        return userName;
+        return username;
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.username = userName;
     }
 
     public String getPassword() {
@@ -56,5 +58,11 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
+
+        return passwordEncoder.matches(loginRequest.password(), this.password);
+
     }
 }

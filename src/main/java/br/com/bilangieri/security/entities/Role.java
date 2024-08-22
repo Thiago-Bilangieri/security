@@ -31,9 +31,10 @@ public class Role {
         this.name = name;
     }
 
+
     public enum Values {
-        ADMIN(1),
-        BASIC(2);
+        ADMIN(1L),
+        BASIC(2L);
 
         //SE DER ERRO PODE SER O FINAL AQUI!
         final long roleId;
