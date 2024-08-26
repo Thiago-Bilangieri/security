@@ -10,6 +10,25 @@ Este projeto é uma API básica desenvolvida em Java utilizando Spring Boot. A A
 - **Criar Post**: Cria novos posts.
 - **Apagar Post**: Permite apagar posts. Cada usuário pode apagar apenas seus próprios posts, enquanto o ADMIN pode apagar qualquer post.
 
+## Instruções para Iniciar o Projeto
+
+Para iniciar o projeto, siga os passos abaixo:
+
+1. **Navegue até a pasta `docker` do projeto**:
+   ```bash
+   cd docker
+   ```
+
+2. **Execute o comando para subir os containers Docker**:
+   ```bash
+   docker compose up
+   ```
+3. **Starte o projeto Spring `SecurityApplication.java`.
+
+
+4. **Acesse a API**: Após a execução dos comandos acima, a API estará disponível para uso.
+
+
 ## Endpoints
 
 ### 1. Login
