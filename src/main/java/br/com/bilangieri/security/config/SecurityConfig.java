@@ -9,6 +9,7 @@ import net.jcip.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -23,6 +25,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -31,11 +36,27 @@ import java.security.interfaces.RSAPublicKey;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.public.key}")
-    private RSAPublicKey publicKey;
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
 
-    @Value("${jwt.private.key}")
-    private RSAPrivateKey privateKey;
+    public SecurityConfig(@Value("${jwt.public.key:}") String publicKeyLocation,
+                          @Value("${jwt.private.key:}") String privateKeyLocation,
+                          ResourceLoader resourceLoader) throws Exception {
+        if (publicKeyLocation.isBlank() || privateKeyLocation.isBlank()) {
+            // Sem chaves configuradas: gera um par RSA em memória (os tokens deixam de valer ao reiniciar)
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(2048);
+            KeyPair keyPair = generator.generateKeyPair();
+            this.publicKey = (RSAPublicKey) keyPair.getPublic();
+            this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        } else {
+            try (InputStream publicKeyStream = resourceLoader.getResource(publicKeyLocation).getInputStream();
+                 InputStream privateKeyStream = resourceLoader.getResource(privateKeyLocation).getInputStream()) {
+                this.publicKey = RsaKeyConverters.x509().convert(publicKeyStream);
+                this.privateKey = RsaKeyConverters.pkcs8().convert(privateKeyStream);
+            }
+        }
+    }
 
 
     @Bean

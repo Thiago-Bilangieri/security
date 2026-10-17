@@ -14,19 +14,39 @@ Este projeto é uma API básica desenvolvida em Java utilizando Spring Boot. A A
 
 Para iniciar o projeto, siga os passos abaixo:
 
-1. **Navegue até a pasta `docker` do projeto**:
+1. **Navegue até a pasta `Docker` do projeto**:
    ```bash
-   cd docker
+   cd Docker
    ```
 
 2. **Execute o comando para subir os containers Docker**:
    ```bash
    docker compose up
    ```
-3. **Starte o projeto Spring `SecurityApplication.java`.
-
+3. **Inicie o projeto Spring**:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
 
 4. **Acesse a API**: Após a execução dos comandos acima, a API estará disponível para uso.
+
+### Chaves do JWT
+
+Os tokens são assinados com RSA. Nenhuma chave fica no repositório:
+
+- **Sem configuração**: a aplicação gera um par de chaves em memória ao iniciar. É prático para desenvolvimento, mas os tokens deixam de valer quando a aplicação reinicia.
+- **Com chaves próprias**: gere o par e aponte as variáveis de ambiente para os arquivos.
+
+  ```bash
+  mkdir keys
+  openssl genrsa -out keys/app.pem 2048
+  openssl rsa -in keys/app.pem -pubout -out keys/app_pub.pem
+
+  export JWT_PRIVATE_KEY=file:./keys/app.pem
+  export JWT_PUBLIC_KEY=file:./keys/app_pub.pem
+  ```
+
+  Arquivos `*.pem` estão no `.gitignore`.
 
 
 ## Endpoints
